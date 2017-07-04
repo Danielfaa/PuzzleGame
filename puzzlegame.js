@@ -16,12 +16,6 @@
 		context.translate(transX, transY);
 
 //Hex class
-	/*class Hex{
-		constructor([q,r],number){
-			this.qr = [q,r];
-			this.number = number;
-			this.rules = [];
-	 	}}*/
 
 	 function Hex([q,r],number){
 	 	this.qr = [q,r];
@@ -39,10 +33,11 @@
 
 		hexes[hexes.length] = new Hex(qr,number);}
 
+	//Finds the hexagon object based on q and r coordinate
 	function findObjectInHexes(hex){
 
 		return hex.qr[0] == tempQ && hex.qr[1]==tempR;}
-
+	//Finds the hexagon object based on q and r coordinate
 	function useHex(q,r){
 		tempQ = q;
 		tempR = r;
@@ -55,17 +50,9 @@
 			
 		}}
 
-	function pushUnlessEmpty(array,q,r){
 
-		if(useHex(q,r)!=false){
-
-			array.push(useHex(q,r));
-
-		}
-		else{
-			
-		}}
-
+	
+	//finds connecting hexes based on q and r coordinate
 	function Neighbours(q,r){
 
 		var neighbours = [];
@@ -81,6 +68,16 @@
 
 		return neighbours;}
 
+		function pushUnlessEmpty(array,q,r){
+
+			if(useHex(q,r)!=false){
+
+				array.push(useHex(q,r));
+
+			}
+		}
+
+	//Returns connecting hexes  
 	Hex.prototype.connecting = function(){
 
 		var neighbours = [];
@@ -160,6 +157,7 @@
 			return false;
 		}}
 
+		//forces push of new rule. 
 		Hex.prototype.forceNewRule = function(rule,pos){
 
 			var newRule = 0; 
@@ -202,7 +200,7 @@
 		}
 
 		}
-
+		//returns all the names of the rules that the current hex contains
 		Hex.prototype.returnRulesName = function(){
 			var temp = [];
 			var tempName = "";
@@ -220,13 +218,14 @@
 			}
 
 		}
+		//changes the number of the hex
 		Hex.prototype.reassignNumber = function(number){
 
 			this.number = number;
 			return this.number;
 
 		}
-
+		//removes all rules from a given 
 		Hex.prototype.removeAllRules = function(){
 
 			this.rules = [];
@@ -234,6 +233,7 @@
 
 		}
 
+	//compares two rules to see if they are the same. Returns false if they are the same
 	function compareRules(rule1,rule2){
 
 		if(rule1.name == rule2.name){
@@ -253,13 +253,15 @@
 			return true;
 		}}
 
-
+	//Removes all rules from all hexes
 	function removeAllRules(){
 		rules = [];
 		for(var i=0; i<hexes.length; i++){
 			hexes[i].removeAllRules();
 		}
 	}
+
+	//Finds all true rules based on the numbers of the hexes
 	function assignRulesToHexes(){
 
 		for(var i=0; i<hexes.length; i++){
@@ -590,35 +592,29 @@
 	//ShowRules
 	//Initate
 
-
+	//clears everything
 	function clearGame(){
-	hexes = [];
-	rules = [];
-	permutations = [];
-	trueMaps = [];
-	hexesDrawn = 0;
-	document.getElementById("buttons").innerHTML = "";
-
-	}
-
-	function makeNewMap(radius){
-
 		hexes = [];
-
+		rules = [];
+		permutations = [];
+		trueMaps = [];
+		hexesDrawn = 0;
+		document.getElementById("buttons").innerHTML = "";
+	}
+	//makes new hexagons.  
+	function makeNewMap(radius){
+		hexes = [];
 		newHex(0,0);
-
 		for(var r=0; r>-radius; r--){
 			for(var q= -r-1; q>-radius-r; q--){
 				newHex(q,r);
 			}
 		}
-
 		for(var r=1; r<radius; r++){
 			for(var q= 0; q>-radius; q--){
 				newHex(q,r);
 			}
 		}
-
 		for(var q=1; q<radius; q++){
 			for(var r=-q; r<radius-q; r++){
 				newHex(q,r);
@@ -628,13 +624,9 @@
 	function drawMapInTerminal(){
 		console.log("\n");
 		console.log("     0,-1"+ useHex(0,-1).number); 
-
 		console.log("-1,0         1,-1");
-
 		console.log("     0,0");
-
 		console.log("-1,1         1,0");
-
 		console.log("     0,1");}
 
 
@@ -664,7 +656,7 @@
 	//newNumbersOnMap
 	//newNumbersFromPermutation
 	//checkMap
-	//
+	
 	function permutation(numberofresults,string,numbers){
 		if(numberofresults>0){
 
@@ -692,7 +684,8 @@
 				
 		}
 	}
-
+	//fills the numbers in the hexes based on the rules. If there are more than 1 set of correct numbers the loop breaks.
+	//trueMaps contains the correct answer 
 	function newNumbersFromPermutation(){
 		trueMaps = [];
 
@@ -701,13 +694,10 @@
 			newNumbersOnMap(permutations[i]);
 
 			if(checkMap()){
-				if(trueMaps.length>=1){
-						
+				if(trueMaps.length>=1){	
 						trueMaps.push(permutations[i]);
 						drawSolution();
 						break;
-						
-						
 					}
 					else{
 						trueMaps.push(permutations[i]);
@@ -719,22 +709,17 @@
 		}
 		
 
-
+	//check each rule on the map to see if it's true. Returns false if one rule is false.
 	function checkMap(){
 
 		for(var i=0; i<hexes.length; i++){
 			for(var j=0; j<hexes[i].rules.length; j++){
 
 				if(!hexes[i].rules[j].checkRule()){
-
-					
-					return false;
-					
+					return false;	
 				}
 			}
 		}
-
-
 		return true;
 	}
 
@@ -761,17 +746,11 @@
 		hexesDrawn = 0;
 		drawMap();
 		newNumbersFromPermutation();
-
-
-
 	}
 
 	//draw figures and text
 		function drawHex(hex,addx,addy){
-			
-			context.fillText(hex.number,addx+25*(hex.q+0.5*hex.r),addy+25*hex.r);
-
-			
+			context.fillText(hex.number,addx+25*(hex.q+0.5*hex.r),addy+25*hex.r);	
 		}
 
 		function drawSolution(){
@@ -780,6 +759,7 @@
 			}
 			hexesDrawn ++;}
 
+	//recursive function. If there's not a unique answer it calls itself again.
 	function newMap(){
 
 		clearGame();
@@ -797,7 +777,7 @@
 		
 	}
 	
-	
+	//draws buttons with all the rules
 	function bShowRules(){
 
 		for(var i=0; i<hexes.length; i++){
@@ -812,6 +792,7 @@
 		}	
 	}
 
+	//removes a rule and updates the map. this.name refers to the attribute of the button
 	function removeAndUpdate(){
 		var temp = this.name.split(" ");
 			var tempQ = temp[0];
@@ -835,7 +816,7 @@
 		
 	}
 
-	//remove a rule on at a time and then update the map to see if it's neccessary 
+	//remove a rule on at a time and then update the map to see if there's still a unique answer 
 	function findFewerRules(){
 		var tempRule = 0;
 		
@@ -867,12 +848,6 @@
 
 	}
 
-	function resetStuff(){
-
-		hexes = hexesTemp;
-		updateMap();
-
-	}
 
 	function createButton(context, func,id,position){
     var button = document.createElement("input");
