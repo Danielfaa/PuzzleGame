@@ -1,10 +1,10 @@
 //global variables
-	var hexes = [];
-	var hexesTemp = [];
+	var Tiles = [];
+	var TilesTemp = [];
 	var rules = [];
 	var permutations = [];
 	var trueMaps = [];
-	var hexesDrawn = 0;
+	var TilesDrawn = 0;
 	var numbersInGame = 5;
 	var rulesInGame = 2; 
 	var tempQ = 0;
@@ -15,35 +15,35 @@
 		var transX = canvas.width * 0.5, transY = canvas.height * 0.5;
 		context.translate(transX, transY);
 
-//Hex class
+//Tile class
 
-	 function Hex([q,r],number){
+	 function Tile([q,r],number){
 	 	this.qr = [q,r];
 	 	this.q = this.qr[0];
 	 	this.r = this.qr[1];
 	 	this.number = number;
 	 	this.rules = [];
 	 }
-	//Methods to class Hex
-	function newHex(q,r){
+	//Methods to class Tile
+	function newTile(q,r){
 
 		var qr = [q,r];
 
 		var number = Math.floor(Math.random()*numbersInGame+1);
 
-		hexes[hexes.length] = new Hex(qr,number);}
+		Tiles[Tiles.length] = new Tile(qr,number);}
 
-	//Finds the hexagon object based on q and r coordinate
-	function findObjectInHexes(hex){
+	//Finds the Tileagon object based on q and r coordinate
+	function findObjectInTiles(Tile){
 
-		return hex.qr[0] == tempQ && hex.qr[1]==tempR;}
-	//Finds the hexagon object based on q and r coordinate
-	function useHex(q,r){
+		return Tile.qr[0] == tempQ && Tile.qr[1]==tempR;}
+	//Finds the Tileagon object based on q and r coordinate
+	function useTile(q,r){
 		tempQ = q;
 		tempR = r;
 
-		if(hexes.findIndex(findObjectInHexes)>=0){
-			return hexes.find(findObjectInHexes);
+		if(Tiles.findIndex(findObjectInTiles)>=0){
+			return Tiles.find(findObjectInTiles);
 		}
 		else{
 			return false;
@@ -52,7 +52,7 @@
 
 
 	
-	//finds connecting hexes based on q and r coordinate
+	//finds connecting Tiles based on q and r coordinate
 	function Neighbours(q,r){
 
 		var neighbours = [];
@@ -70,15 +70,15 @@
 
 		function pushUnlessEmpty(array,q,r){
 
-			if(useHex(q,r)!=false){
+			if(useTile(q,r)!=false){
 
-				array.push(useHex(q,r));
+				array.push(useTile(q,r));
 
 			}
 		}
 
-	//Returns connecting hexes  
-	Hex.prototype.connecting = function(){
+	//Returns connecting Tiles  
+	Tile.prototype.connecting = function(){
 
 		var neighbours = [];
 
@@ -95,7 +95,7 @@
 
 	//make a rule-object and push to this.rules if true and possible. 
 		//Use Rule.name. "rEqual" etc.  
-	Hex.prototype.newRule = function(rule){
+	Tile.prototype.newRule = function(rule){
 		var newRule = 0; 
 
 		switch(rule){
@@ -137,7 +137,7 @@
 	}
 
 	//push rule-object to this.rules if true and possible;
-	Hex.prototype.getRule = function(rule){
+	Tile.prototype.getRule = function(rule){
 		
 		if(rule.checkRule()){
 			if(this.rules.length>0){
@@ -158,7 +158,7 @@
 		}}
 
 		//forces push of new rule. 
-		Hex.prototype.forceNewRule = function(rule,pos){
+		Tile.prototype.forceNewRule = function(rule,pos){
 
 			var newRule = 0; 
 
@@ -200,8 +200,8 @@
 		}
 
 		}
-		//returns all the names of the rules that the current hex contains
-		Hex.prototype.returnRulesName = function(){
+		//returns all the names of the rules that the current Tile contains
+		Tile.prototype.returnRulesName = function(){
 			var temp = [];
 			var tempName = "";
 
@@ -211,22 +211,22 @@
 			}
 			return temp;
 		}
-		Hex.prototype.returnRules = function(){
+		Tile.prototype.returnRules = function(){
 			var temp = [];
 			for(var i=0; i<this.rules.length; i++){
 				temp.push(this.rules);
 			}
 
 		}
-		//changes the number of the hex
-		Hex.prototype.reassignNumber = function(number){
+		//changes the number of the Tile
+		Tile.prototype.reassignNumber = function(number){
 
 			this.number = number;
 			return this.number;
 
 		}
 		//removes all rules from a given 
-		Hex.prototype.removeAllRules = function(){
+		Tile.prototype.removeAllRules = function(){
 
 			this.rules = [];
 
@@ -240,7 +240,7 @@
 			if(rule1.type=="multipleTarget"){
 				return false;
 			}
-			else if(rule1.type=="singleTarget" && rule1.trueHexes.length<2){
+			else if(rule1.type=="singleTarget" && rule1.trueTiles.length<2){
 				return false;
 			}
 			
@@ -253,26 +253,26 @@
 			return true;
 		}}
 
-	//Removes all rules from all hexes
+	//Removes all rules from all Tiles
 	function removeAllRules(){
 		rules = [];
-		for(var i=0; i<hexes.length; i++){
-			hexes[i].removeAllRules();
+		for(var i=0; i<Tiles.length; i++){
+			Tiles[i].removeAllRules();
 		}
 	}
 
-	//Finds all true rules based on the numbers of the hexes
-	function assignRulesToHexes(){
+	//Finds all true rules based on the numbers of the Tiles
+	function assignRulesToTiles(){
 
-		for(var i=0; i<hexes.length; i++){
+		for(var i=0; i<Tiles.length; i++){
 
-			hexes[i].newRule("rNoneEqual");
-			hexes[i].newRule("rEqual");
-			hexes[i].newRule("rThreeConsec");
-			hexes[i].newRule("rOtherIsLarger");
-			hexes[i].newRule("rOtherIsSmaller");
-			hexes[i].newRule("rOtherPlusThree");
-			hexes[i].newRule("rOtherPlusOne");
+			Tiles[i].newRule("rNoneEqual");
+			Tiles[i].newRule("rEqual");
+			Tiles[i].newRule("rThreeConsec");
+			Tiles[i].newRule("rOtherIsLarger");
+			Tiles[i].newRule("rOtherIsSmaller");
+			Tiles[i].newRule("rOtherPlusThree");
+			Tiles[i].newRule("rOtherPlusOne");
 			
 
 		}}	
@@ -286,7 +286,7 @@
 				
 	//Methods to superclass
 
-	//find connecting hexes
+	//find connecting Tiles
 		Rule.prototype.connecting = function(){
 
 			return Neighbours(this.q,this.r);}
@@ -294,7 +294,7 @@
 	//Remove rule
 		Rule.prototype.remove = function(){
 
-			return useHex(this.q,this.r).rules.splice(useHex(this.q,this.r).rules.indexOf(this),1,new emptyRule(this.q,this.r));
+			return useTile(this.q,this.r).rules.splice(useTile(this.q,this.r).rules.indexOf(this),1,new emptyRule(this.q,this.r));
 
 		}
 
@@ -321,12 +321,12 @@
 			this.q = q;
 			this.r = r;	
 			this.type = "singleTarget";
-			this.trueHexes = [];}
+			this.trueTiles = [];}
 			singleTargetRule.prototype = Object.create(Rule.prototype);
 			singleTargetRule.prototype.constructor = singleTargetRule;
 
 
-			singleTargetRule.prototype.specificRule = function(otherhex){
+			singleTargetRule.prototype.specificRule = function(otherTile){
 				if(1>0){
 					return true;
 				}
@@ -337,19 +337,19 @@
 			singleTargetRule.prototype.checkRule = function(){
 				
 				var temp = this.connecting();
-				var trueHexes = [];
+				var trueTiles = [];
 
 				for(var i=0; i<temp.length; i++){
 				
 					if(this.specificRule(temp[i])){
-						trueHexes.push(temp[i]);
+						trueTiles.push(temp[i]);
 						
 						
 					}
 				}
 
-				if(trueHexes.length>0){
-					this.trueHexes = trueHexes;
+				if(trueTiles.length>0){
+					this.trueTiles = trueTiles;
 					
 					return true;
 				}	
@@ -390,9 +390,9 @@
 				rEqual.prototype.constructor = rEqual;
 
 
-			rEqual.prototype.specificRule = function(otherhex){
+			rEqual.prototype.specificRule = function(otherTile){
 
-				if(useHex(this.q,this.r).number==otherhex.number){
+				if(useTile(this.q,this.r).number==otherTile.number){
 					return true;
 				}
 
@@ -413,9 +413,9 @@
 				rOtherIsSmaller.prototype.constructor = rOtherIsSmaller;
 
 
-			rOtherIsSmaller.prototype.specificRule = function(otherhex){
+			rOtherIsSmaller.prototype.specificRule = function(otherTile){
 
-				if(useHex(this.q,this.r).number>otherhex.number){
+				if(useTile(this.q,this.r).number>otherTile.number){
 					return true;
 				}
 
@@ -438,9 +438,9 @@
 				rOtherIsLarger.prototype.constructor = rOtherIsLarger;
 
 
-			rOtherIsLarger.prototype.specificRule = function(otherhex){
+			rOtherIsLarger.prototype.specificRule = function(otherTile){
 
-				if(useHex(this.q,this.r).number<otherhex.number){
+				if(useTile(this.q,this.r).number<otherTile.number){
 					return true;
 				}
 
@@ -462,9 +462,9 @@
 				rOtherPlusOne.prototype.constructor = rOtherPlusOne;
 
 
-			rOtherPlusOne.prototype.specificRule = function(otherhex){
+			rOtherPlusOne.prototype.specificRule = function(otherTile){
 
-				if(useHex(this.q,this.r).number+1==otherhex.number){
+				if(useTile(this.q,this.r).number+1==otherTile.number){
 					return true;
 				}
 
@@ -485,9 +485,9 @@
 				rOtherPlusThree.prototype.constructor = rOtherPlusThree;
 
 
-			rOtherPlusThree.prototype.specificRule = function(otherhex){
+			rOtherPlusThree.prototype.specificRule = function(otherTile){
 
-				if(useHex(this.q,this.r).number+3==otherhex.number){
+				if(useTile(this.q,this.r).number+3==otherTile.number){
 					return true;
 				}
 
@@ -513,7 +513,7 @@
 
 			for(var i=0; i<temp.length; i++){
 
-				if(useHex(this.q,this.r).number==temp[i].number){
+				if(useTile(this.q,this.r).number==temp[i].number){
 
 					isTrue = false;
 					break;
@@ -594,36 +594,36 @@
 
 	//clears everything
 	function clearGame(){
-		hexes = [];
+		Tiles = [];
 		rules = [];
 		permutations = [];
 		trueMaps = [];
-		hexesDrawn = 0;
+		TilesDrawn = 0;
 		document.getElementById("buttons").innerHTML = "";
 	}
-	//makes new hexagons.  
+	//makes new Tileagons.  
 	function makeNewMap(radius){
-		hexes = [];
-		newHex(0,0);
+		Tiles = [];
+		newTile(0,0);
 		for(var r=0; r>-radius; r--){
 			for(var q= -r-1; q>-radius-r; q--){
-				newHex(q,r);
+				newTile(q,r);
 			}
 		}
 		for(var r=1; r<radius; r++){
 			for(var q= 0; q>-radius; q--){
-				newHex(q,r);
+				newTile(q,r);
 			}
 		}
 		for(var q=1; q<radius; q++){
 			for(var r=-q; r<radius-q; r++){
-				newHex(q,r);
+				newTile(q,r);
 			}
 		}}
 
 	function drawMapInTerminal(){
 		console.log("\n");
-		console.log("     0,-1"+ useHex(0,-1).number); 
+		console.log("     0,-1"+ useTile(0,-1).number); 
 		console.log("-1,0         1,-1");
 		console.log("     0,0");
 		console.log("-1,1         1,0");
@@ -632,10 +632,10 @@
 
 	function showRules(){
 		rules = [];
-		for(var i=0; i<hexes.length; i++){
+		for(var i=0; i<Tiles.length; i++){
 
 			
-			rules.push(hexes[i].returnRulesName());
+			rules.push(Tiles[i].returnRulesName());
 
 		}}
 
@@ -643,10 +643,10 @@
 		clearGame();
 		makeNewMap(radius);
 		//drawMapInTerminal();
-		assignRulesToHexes();
-		permutation(hexes.length,"",numbersInGame);
+		assignRulesToTiles();
+		permutation(Tiles.length,"",numbersInGame);
 		showRules();
-		hexesTemp = hexes; 
+		TilesTemp = Tiles; 
 		drawMap();
 		 }
 
@@ -679,12 +679,12 @@
 
 	function newNumbersOnMap(arrayOfNumbers){
 
-		for(var i=0; i<hexes.length; i++){
-				hexes[i].reassignNumber(arrayOfNumbers[i]); 
+		for(var i=0; i<Tiles.length; i++){
+				Tiles[i].reassignNumber(arrayOfNumbers[i]); 
 				
 		}
 	}
-	//fills the numbers in the hexes based on the rules. If there are more than 1 set of correct numbers the loop breaks.
+	//fills the numbers in the Tiles based on the rules. If there are more than 1 set of correct numbers the loop breaks.
 	//trueMaps contains the correct answer 
 	function newNumbersFromPermutation(){
 		trueMaps = [];
@@ -712,10 +712,10 @@
 	//check each rule on the map to see if it's true. Returns false if one rule is false.
 	function checkMap(){
 
-		for(var i=0; i<hexes.length; i++){
-			for(var j=0; j<hexes[i].rules.length; j++){
+		for(var i=0; i<Tiles.length; i++){
+			for(var j=0; j<Tiles[i].rules.length; j++){
 
-				if(!hexes[i].rules[j].checkRule()){
+				if(!Tiles[i].rules[j].checkRule()){
 					return false;	
 				}
 			}
@@ -727,7 +727,7 @@
 //Draw the game in browser
 	//drawMap
 	//updateMap
-	//drawHex
+	//drawTile
 	//drawSolution
 	//newMap
 	//bShowRules
@@ -743,21 +743,21 @@
 	}
 
 	function updateMap(){
-		hexesDrawn = 0;
+		TilesDrawn = 0;
 		drawMap();
 		newNumbersFromPermutation();
 	}
 
 	//draw figures and text
-		function drawHex(hex,addx,addy){
-			context.fillText(hex.number,addx+25*(hex.q+0.5*hex.r),addy+25*hex.r);	
+		function drawTile(Tile,addx,addy){
+			context.fillText(Tile.number,addx+25*(Tile.q+0.5*Tile.r),addy+25*Tile.r);	
 		}
 
 		function drawSolution(){
-			for(var i=0; i<hexes.length; i++){
-			drawHex(hexes[i],-300+hexesDrawn*150,0);
+			for(var i=0; i<Tiles.length; i++){
+			drawTile(Tiles[i],-300+TilesDrawn*150,0);
 			}
-			hexesDrawn ++;}
+			TilesDrawn ++;}
 
 	//recursive function. If there's not a unique answer it calls itself again.
 	function newMap(){
@@ -780,14 +780,14 @@
 	//draws buttons with all the rules
 	function bShowRules(){
 
-		for(var i=0; i<hexes.length; i++){
+		for(var i=0; i<Tiles.length; i++){
 			createDiv(i);
 			var text = document.createElement('p');
-			text.textContent = hexes[i].q+" "+hexes[i].r;
+			text.textContent = Tiles[i].q+" "+Tiles[i].r;
 			
 			document.getElementById(i).appendChild(text);
-			for(var j=0; j<hexes[i].rules.length; j++){
-				createButton(document.getElementById(i),removeAndUpdate,hexes[i].rules[j],j);
+			for(var j=0; j<Tiles[i].rules.length; j++){
+				createButton(document.getElementById(i),removeAndUpdate,Tiles[i].rules[j],j);
 			}
 		}	
 	}
@@ -802,13 +802,13 @@
 		if(this.style.color!=="red"){
 			this.style.color = "red";
 			
-			useHex(tempQ,tempR).rules[position].remove();
+			useTile(tempQ,tempR).rules[position].remove();
 			updateMap();
 		}
 		else{
 			this.style.color = "black";
 	
-			useHex(tempQ,tempR).forceNewRule(this.value,position);
+			useTile(tempQ,tempR).forceNewRule(this.value,position);
 			updateMap();
 
 		}
@@ -820,19 +820,19 @@
 	function findFewerRules(){
 		var tempRule = 0;
 		
-		for(var i=0; i<hexes.length; i++){
+		for(var i=0; i<Tiles.length; i++){
 			
-			for(var j=0; j<hexes[i].rules.length; j++){
+			for(var j=0; j<Tiles[i].rules.length; j++){
 
-				tempRule = hexes[i].rules[j].remove();	
+				tempRule = Tiles[i].rules[j].remove();	
 				updateMap();			
-				var button = document.getElementsByName(hexes[i].q+" "+hexes[i].r+" "+j);
+				var button = document.getElementsByName(Tiles[i].q+" "+Tiles[i].r+" "+j);
 				button[0].style.color = "red";
 				
 
 				if(trueMaps.length>1){
 
-					hexes[i].forceNewRule(tempRule[0].name,j);
+					Tiles[i].forceNewRule(tempRule[0].name,j);
 					updateMap();
 					button[0].style.color ="black";
 
@@ -881,12 +881,12 @@ function returnMapInFormat(){
 	
 	var temp = "";
 
-	for(var i=0; i<hexes.length; i++){
-		temp += hexes[i].q + " "+hexes[i].r +" "+trueMaps[0][i];
+	for(var i=0; i<Tiles.length; i++){
+		temp += Tiles[i].q + " "+Tiles[i].r +" "+trueMaps[0][i];
 		
-		for(var j=0; j<hexes[i].rules.length; j++){
-			if(hexes[i].rules[j].name!="empty"){
-				temp += " "+hexes[i].rules[j].name;
+		for(var j=0; j<Tiles[i].rules.length; j++){
+			if(Tiles[i].rules[j].name!="empty"){
+				temp += " "+Tiles[i].rules[j].name;
 			}
 		}
 		temp += "\n";
