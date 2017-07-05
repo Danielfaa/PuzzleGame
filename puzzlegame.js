@@ -5,8 +5,7 @@
 	var permutations = [];
 	var trueMaps = [];
 	var TilesDrawn = 0;
-	var numbersInGame = 5;
-	var rulesInGame = 2; 
+	var numbersInGame = 5; 
 	var tempQ = 0;
 	var tempR = 0;
 	//canvas variables
@@ -15,9 +14,10 @@
 		var transX = canvas.width * 0.5, transY = canvas.height * 0.5;
 		context.translate(transX, transY);
 
-//Tile class
+//Tile superclass
 
 	 function Tile([q,r],number){
+	 	this.tiletype = "hexagon";
 	 	this.qr = [q,r];
 	 	this.q = this.qr[0];
 	 	this.r = this.qr[1];
@@ -51,23 +51,6 @@
 		}}
 
 
-	
-	//finds connecting Tiles based on q and r coordinate
-	function Neighbours(q,r){
-
-		var neighbours = [];
-
-		pushUnlessEmpty(neighbours,q-1,r);
-		pushUnlessEmpty(neighbours,q-1,r+1);
-		pushUnlessEmpty(neighbours,q,r-1);
-		pushUnlessEmpty(neighbours,q,r+1);
-		pushUnlessEmpty(neighbours,q+1,r-1);
-		pushUnlessEmpty(neighbours,q+1,r);
-		
-		
-
-		return neighbours;}
-
 		function pushUnlessEmpty(array,q,r){
 
 			if(useTile(q,r)!=false){
@@ -77,21 +60,36 @@
 			}
 		}
 
-	//Returns connecting Tiles  
-	Tile.prototype.connecting = function(){
+//Find connecting tiles
+	//finds connecting Tiles based on q and r coordinate
+	function Neighbours(type,q,r){
 
 		var neighbours = [];
 
-		pushUnlessEmpty(neighbours,q-1,r);
-		pushUnlessEmpty(neighbours,q-1,r+1);
-		pushUnlessEmpty(neighbours,q,r-1);
-		pushUnlessEmpty(neighbours,q,r+1);
-		pushUnlessEmpty(neighbours,q+1,r-1);
-		pushUnlessEmpty(neighbours,q+1,r);
+		switch(type){
+			case "hexagon" :
+				pushUnlessEmpty(neighbours,q-1,r);
+				pushUnlessEmpty(neighbours,q-1,r+1);
+				pushUnlessEmpty(neighbours,q,r-1);
+				pushUnlessEmpty(neighbours,q,r+1);
+				pushUnlessEmpty(neighbours,q+1,r-1);
+				pushUnlessEmpty(neighbours,q+1,r);
+				return neighbours;
+				break;
+		}
+	}
 		
 		
 
-		return neighbours;}
+	//Returns connecting Tiles  
+	Tile.prototype.connecting = function(){
+		return Neighbours(this.tiletype,this.q,this.r);
+		}
+
+	//find connecting Tiles
+	Rule.prototype.connecting = function(){
+		return Neighbours(this.tiletype,this.q,this.r);}
+
 
 	//make a rule-object and push to this.rules if true and possible. 
 		//Use Rule.name. "rEqual" etc.  
@@ -282,14 +280,12 @@
 		function Rule(q,r){
 		this.q = q;
 		this.r = r;
+		this.tiletype = "hexagon";
 		 }
 				
 	//Methods to superclass
 
-	//find connecting Tiles
-		Rule.prototype.connecting = function(){
-
-			return Neighbours(this.q,this.r);}
+	
 
 	//Remove rule
 		Rule.prototype.remove = function(){
@@ -749,15 +745,40 @@
 	}
 
 	//draw figures and text
-		function drawTile(Tile,addx,addy){
-			context.fillText(Tile.number,addx+25*(Tile.q+0.5*Tile.r),addy+25*Tile.r);	
+		//Honeycomb hex pattern
+		Tile.prototype.draw = function(addx,addy){
+
+			context.fillText(this.number,addx+25*(this.q+0.5*this.r),addy+25*this.r);
+
 		}
+
+		function createButton(context, func,id,position){
+		    var button = document.createElement("input");
+		    button.type = "button";
+		    button.value = id.name;
+
+		    button.id = id;
+		    button.name = id.q+" "+id.r+" "+position;
+		    button.onclick = func;
+		    context.appendChild(button);
+	}
+
+	function createDiv(name){
+		var newDiv =document.createElement('div');
+		newDiv.id = name;
+
+		document.getElementById("buttons").appendChild(newDiv);
+	}
+		
 
 		function drawSolution(){
 			for(var i=0; i<Tiles.length; i++){
-			drawTile(Tiles[i],-300+TilesDrawn*150,0);
+			Tiles[i].draw(-300+TilesDrawn*150,0);
+
 			}
 			TilesDrawn ++;}
+
+
 
 	//recursive function. If there's not a unique answer it calls itself again.
 	function newMap(){
@@ -812,8 +833,6 @@
 			updateMap();
 
 		}
-
-		
 	}
 
 	//remove a rule on at a time and then update the map to see if there's still a unique answer 
@@ -829,53 +848,23 @@
 				var button = document.getElementsByName(Tiles[i].q+" "+Tiles[i].r+" "+j);
 				button[0].style.color = "red";
 				
-
 				if(trueMaps.length>1){
-
 					Tiles[i].forceNewRule(tempRule[0].name,j);
 					updateMap();
 					button[0].style.color ="black";
-
 				}
-
-
 			}
-
-
-
 		}
 		alert("finished");
 
 	}
 
 
-	function createButton(context, func,id,position){
-    var button = document.createElement("input");
-    button.type = "button";
-    button.value = id.name;
+function initElements(){
+		document.getElementById("buttonNewMap").onclick = newMap;
+		document.getElementById("buttonSolutions").onclick = download;
 
-    button.id = id;
-    button.name = id.q+" "+id.r+" "+position;
-    button.onclick = func;
-    context.appendChild(button);
-	}
-
-	function createDiv(name){
-		var newDiv =document.createElement('div');
-		newDiv.id = name;
-
-		document.getElementById("buttons").appendChild(newDiv);
-	}
-
-	function initElements(){
-	document.getElementById("buttonNewMap").onclick = newMap;
-	document.getElementById("buttonSolutions").onclick = download;
-
-	newMap();
-	
-
-	
-	}
+		newMap();}
 
 function returnMapInFormat(){
 	
@@ -893,11 +882,7 @@ function returnMapInFormat(){
 	}
 	
 
-	return temp;
-
-}
-
-
+	return temp;}
 
 
 function download() {
